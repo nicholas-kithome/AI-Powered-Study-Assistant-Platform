@@ -1,5 +1,6 @@
 import Sidebar from "@/components/app-shell/Sidebar";
 import MobileNav from "@/components/app-shell/MobileNav";
+import CommandMenu from "@/components/app-shell/CommandMenu";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
       <MobileNav />
+      <CommandMenu />
     </div>
   );
 }
+
