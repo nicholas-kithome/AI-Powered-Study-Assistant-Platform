@@ -10,22 +10,29 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 const STATUS_COLORS: Record<string, string> = {
-  ready: "status-ready",
+  ready:      "status-ready",
   processing: "status-processing",
-  uploading: "status-uploading",
-  failed: "status-failed",
+  uploading:  "status-uploading",
+  failed:     "status-failed",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  ready: "Ready",
+  ready:      "Ready",
   processing: "Processing",
-  uploading: "Uploading",
-  failed: "Failed",
+  uploading:  "Uploading",
+  failed:     "Failed",
 };
 
+const STAT_META = [
+  { label: "Documents",     icon: <FileText   size={18} className="text-primary-500" />,  bg: "bg-primary-50",  iconBg: "bg-primary-100" },
+  { label: "Quizzes Taken", icon: <BookOpen   size={18} className="text-violet-500" />,   bg: "bg-violet-50",   iconBg: "bg-violet-100"  },
+  { label: "Avg. Score",    icon: <TrendingUp size={18} className="text-emerald-500" />,  bg: "bg-emerald-50",  iconBg: "bg-emerald-100" },
+  { label: "Study Mins",    icon: <Flame      size={18} className="text-amber-500" />,    bg: "bg-amber-50",    iconBg: "bg-amber-100"   },
+];
+
 export default function DashboardPage() {
-  const [docs, setDocs] = useState<StudyDocument[]>([]);
-  const [stats, setStats] = useState<UserStats | null>(null);
+  const [docs,    setDocs]    = useState<StudyDocument[]>([]);
+  const [stats,   setStats]   = useState<UserStats | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -50,107 +57,135 @@ export default function DashboardPage() {
     );
   }
 
-  const recentDocs = docs.slice(0, 4);
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const recentDocs   = docs.slice(0, 4);
+  const hour         = new Date().getHours();
+  const greeting     = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const docCount     = docs.length;
+  const readyCount   = docs.filter(d => d.status === "ready").length;
+  const progressPct  = Math.min(100, (stats.weeklyProgress / stats.weeklyGoal) * 100);
 
-  // Calculate dynamic stats
-  const docCount = docs.length;
-  const readyCount = docs.filter(d => d.status === 'ready').length;
+  const statValues = [
+    docCount,
+    stats.quizzesTaken,
+    `${stats.averageScore}%`,
+    stats.totalStudyMinutes,
+  ];
 
   return (
     <div className="animate-fade-in">
       <Topbar title="Dashboard" />
 
       <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
-        {/* Welcome + Upload CTA */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600 rounded-2xl p-6 md:p-8 text-white shadow-panel">
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute top-4 right-8 w-32 h-32 border-4 border-white rounded-full" />
-            <div className="absolute -bottom-4 right-24 w-20 h-20 border-2 border-white rounded-full" />
-          </div>
+
+        {/* ── Welcome Hero ─────────────────────────────────────────── */}
+        <div className="relative overflow-hidden gradient-bg rounded-2xl p-6 md:p-8 text-white shadow-panel">
+          {/* Decorative circles */}
+          <div className="absolute -top-6 -right-6 w-40 h-40 border-[3px] border-white/10 rounded-full pointer-events-none" />
+          <div className="absolute -bottom-10 right-20 w-28 h-28 border-[2px] border-white/10 rounded-full pointer-events-none" />
+          <div className="absolute top-10 right-40 w-8 h-8 bg-white/5 rounded-full pointer-events-none" />
+
           <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-            <div className="flex-1">
+            <div className="flex-1 animate-slide-up">
               <div className="flex items-center gap-2 mb-2">
-                <Flame size={18} className="text-amber-300" />
-                <span className="text-sm font-medium text-primary-200">{stats.studyStreak}-day study streak 🔥</span>
+                <Flame size={17} className="text-amber-300" />
+                <span className="text-sm font-medium text-white/70">
+                  {stats.studyStreak}-day streak 🔥
+                </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-1">{greeting}, Alex!</h2>
-              <p className="text-primary-200 text-sm">
-                You have {readyCount} {readyCount === 1 ? "document" : "documents"} ready to study and {stats.weeklyGoal - stats.weeklyProgress} sessions to reach your weekly goal.
+              <p className="text-white/60 text-sm">
+                {readyCount} {readyCount === 1 ? "document" : "documents"} ready &middot;&nbsp;
+                {stats.weeklyGoal - stats.weeklyProgress} sessions to weekly goal
               </p>
             </div>
+
             <Link
               href="/library"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-colors shadow-sm shrink-0 text-sm"
+              className="btn-shine inline-flex items-center gap-2 px-5 py-3 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-200 shadow-md shrink-0 text-sm active:scale-95 animate-slide-up stagger-2"
             >
-              <Upload size={16} />
+              <Upload size={15} />
               Upload Notes
             </Link>
           </div>
 
-          {/* Weekly progress */}
-          <div className="relative mt-6 pt-5 border-t border-primary-500">
+          {/* Progress bar */}
+          <div className="relative mt-6 pt-5 border-t border-white/15 animate-slide-up stagger-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-primary-200">Weekly study goal</span>
-              <span className="text-xs font-bold text-white">{stats.weeklyProgress}/{stats.weeklyGoal} sessions</span>
+              <span className="text-xs font-medium text-white/60">Weekly study goal</span>
+              <span className="text-xs font-bold text-white">
+                {stats.weeklyProgress}/{stats.weeklyGoal} sessions
+              </span>
             </div>
-            <div className="h-2 bg-primary-500 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
               <div
-                className="h-full bg-white rounded-full transition-all duration-700"
-                style={{ width: `${(stats.weeklyProgress / stats.weeklyGoal) * 100}%` }}
+                className="h-full bg-white rounded-full progress-fill"
+                style={{ width: `${progressPct}%` }}
               />
             </div>
           </div>
         </div>
 
-        {/* Stats row */}
+        {/* ── Stats Row ────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Documents", value: docCount, icon: <FileText size={18} className="text-primary-500" />, bg: "bg-primary-50" },
-            { label: "Quizzes Taken", value: stats.quizzesTaken, icon: <BookOpen size={18} className="text-violet-500" />, bg: "bg-violet-50" },
-            { label: "Avg. Score", value: `${stats.averageScore}%`, icon: <TrendingUp size={18} className="text-emerald-500" />, bg: "bg-emerald-50" },
-            { label: "Study Minutes", value: stats.totalStudyMinutes, icon: <Flame size={18} className="text-amber-500" />, bg: "bg-amber-50" },
-          ].map((stat) => (
-            <Card key={stat.label} padding="md">
-              <div className={clsx("w-9 h-9 rounded-lg flex items-center justify-center mb-3", stat.bg)}>
-                {stat.icon}
+          {STAT_META.map((meta, i) => (
+            <Card
+              key={meta.label}
+              padding="md"
+              glow="primary"
+              className={clsx("animate-slide-up", `stagger-${i + 1}`)}
+            >
+              <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-transform duration-200 hover:scale-110", meta.iconBg)}>
+                {meta.icon}
               </div>
-              <p className="text-2xl font-bold text-surface-900">{stat.value}</p>
-              <p className="text-xs text-surface-500 mt-0.5">{stat.label}</p>
+              <p className="text-2xl font-bold text-surface-900 tabular-nums">
+                {statValues[i]}
+              </p>
+              <p className="text-xs text-surface-500 mt-0.5">{meta.label}</p>
             </Card>
           ))}
         </div>
 
+        {/* ── Main Grid ────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
           {/* Recent Documents */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 animate-slide-up stagger-2">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-surface-900">Recent Documents</h2>
-              <Link href="/library" className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1">
-                View all <ArrowRight size={14} />
+              <Link
+                href="/library"
+                className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1 transition-colors group"
+              >
+                View all
+                <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
               </Link>
             </div>
-            <div className="space-y-3">
+
+            <div className="space-y-2.5">
               {recentDocs.length === 0 ? (
-                <div className="text-center py-10 bg-white border border-surface-200 rounded-xl">
-                  <p className="text-3xl mb-2">📂</p>
-                  <p className="text-sm text-surface-500">No documents uploaded yet.</p>
+                <div className="text-center py-12 bg-white border border-surface-200 rounded-xl">
+                  <p className="text-4xl mb-2 animate-float">📂</p>
+                  <p className="text-sm font-medium text-surface-600">No documents yet</p>
+                  <p className="text-xs text-surface-400 mt-1">Upload your first set of notes to get started</p>
                 </div>
               ) : (
-                recentDocs.map((doc) => (
+                recentDocs.map((doc, i) => (
                   <Link key={doc.id} href={`/documents/${doc.id}`}>
-                    <Card hover className="group">
+                    <Card
+                      hover
+                      glow="primary"
+                      className={clsx("group animate-slide-up", `stagger-${i + 1}`)}
+                    >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-surface-100 flex items-center justify-center text-lg shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
                           {doc.fileType === "pdf" ? "📄" : doc.fileType === "docx" ? "📝" : "📃"}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors">
+                          <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors duration-150">
                             {doc.title}
                           </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {doc.course && <span className="text-xs text-surface-400">{doc.course}</span>}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {doc.course    && <span className="text-xs text-surface-400">{doc.course}</span>}
                             {doc.pageCount && <span className="text-xs text-surface-300">· {doc.pageCount} pages</span>}
                           </div>
                         </div>
@@ -165,32 +200,54 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recommendations */}
-          <div className="space-y-4">
+          {/* Recommendations sidebar */}
+          <div className="space-y-4 animate-slide-up stagger-3">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-surface-900 flex items-center gap-2">
-                <Sparkles size={16} className="text-accent-500" />
+                <Sparkles size={15} className="text-accent-500 animate-pulse-glow" />
                 Recommended
               </h2>
-              <Link href="/recommendations" className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1">
-                See all <ArrowRight size={14} />
+              <Link
+                href="/recommendations"
+                className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1 transition-colors group"
+              >
+                See all
+                <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
               </Link>
             </div>
-            <div className="space-y-3">
-              {MOCK_RECOMMENDATIONS.slice(0, 3).map((rec) => (
-                <Card key={rec.id} hover padding="md">
+
+            <div className="space-y-2.5">
+              {MOCK_RECOMMENDATIONS.slice(0, 3).map((rec, i) => (
+                <Card
+                  key={rec.id}
+                  hover
+                  glow="accent"
+                  padding="md"
+                  className={clsx("animate-slide-up", `stagger-${i + 2}`)}
+                >
                   <div className="flex gap-3">
-                    <span className="text-2xl shrink-0">{rec.icon}</span>
+                    <span className="text-2xl shrink-0 animate-float" style={{ animationDelay: `${i * 200}ms` }}>
+                      {rec.icon}
+                    </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-surface-800 leading-snug mb-1">{rec.title}</p>
-                      <p className="text-xs text-surface-500 leading-relaxed mb-3 line-clamp-2">{rec.description}</p>
+                      <p className="text-sm font-semibold text-surface-800 leading-snug mb-1">
+                        {rec.title}
+                      </p>
+                      <p className="text-xs text-surface-500 leading-relaxed mb-2.5 line-clamp-2">
+                        {rec.description}
+                      </p>
                       {rec.documentId ? (
-                        <Link href={`/documents/${rec.documentId}`} className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1">
-                          {rec.actionLabel} <ArrowRight size={11} />
+                        <Link
+                          href={`/documents/${rec.documentId}`}
+                          className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors"
+                        >
+                          {rec.actionLabel}
+                          <ArrowRight size={11} className="transition-transform duration-150 group-hover:translate-x-0.5" />
                         </Link>
                       ) : (
-                        <button className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1">
-                          {rec.actionLabel} <ArrowRight size={11} />
+                        <button className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors">
+                          {rec.actionLabel}
+                          <ArrowRight size={11} className="transition-transform duration-150 group-hover:translate-x-0.5" />
                         </button>
                       )}
                     </div>
@@ -199,6 +256,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
