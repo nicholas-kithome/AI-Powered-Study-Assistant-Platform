@@ -1,10 +1,10 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Topbar from "@/components/app-shell/Topbar";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { MOCK_DOCUMENTS } from "@/lib/mock-data";
+import { getStoredDocuments, saveStoredDocuments, getStoredStats, saveStoredStats } from "@/lib/store";
 import { StudyDocument } from "@/types";
 import {
   Search, Upload, Grid3X3, List, MoreVertical, FileText,
@@ -42,8 +42,24 @@ export default function LibraryPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [docs, setDocs] = useState<StudyDocument[]>(MOCK_DOCUMENTS);
+  const [docs, setDocs] = useState<StudyDocument[]>([]);
+  const [mounted, setMounted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setDocs(getStoredDocuments());
+    setMounted(true);
+  }, []);
+
+  const handleSaveDocs = (updatedDocs: StudyDocument[]) => {
+    setDocs(updatedDocs);
+    saveStoredDocuments(updatedDocs);
+
+    // Update stats
+    const stats = getStoredStats();
+    stats.documentsUploaded = updatedDocs.length;
+    saveStoredStats(stats);
+  };
 
   const filtered = docs.filter((d) => {
     if (filter !== "all" && d.status !== filter) return false;
@@ -78,7 +94,7 @@ export default function LibraryPage() {
                 size: file.size,
                 pageCount: Math.floor(Math.random() * 40) + 5,
               };
-              setDocs((prev) => [newDoc, ...prev]);
+              handleSaveDocs([newDoc, ...docs]);
             }, 2000);
           }, 500);
         }
@@ -105,6 +121,28 @@ export default function LibraryPage() {
     setSelectedFile(null);
     if (fileRef.current) fileRef.current.value = "";
   };
+
+  const handleDelete = (id: string) => {
+    const updated = docs.filter((d) => d.id !== id);
+    handleSaveDocs(updated);
+  };
+
+  if (!mounted) {
+    return (
+      <div className="animate-fade-in">
+        <Topbar title="Library" />
+        <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+          <div className="skeleton h-32 w-full rounded-2xl" />
+          <div className="skeleton h-12 w-full rounded-xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {Array(3).fill(0).map((_, i) => (
+              <div key={i} className="skeleton h-44 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -240,57 +278,61 @@ export default function LibraryPage() {
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((doc) => (
-              <Link key={doc.id} href={`/documents/${doc.id}`}>
-                <Card hover className="group h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-11 h-11 rounded-xl bg-surface-100 flex items-center justify-center text-2xl">
-                      {FILE_ICONS[doc.fileType]}
+              <div key={doc.id} className="relative group">
+                <Link href={`/documents/${doc.id}`}>
+                  <Card hover className="h-full flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-11 h-11 rounded-xl bg-surface-100 flex items-center justify-center text-2xl">
+                          {FILE_ICONS[doc.fileType]}
+                        </div>
+                        <Badge variant={STATUS_COLORS[doc.status]} dot>
+                          {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                        </Badge>
+                      </div>
+                      <h3 className="font-semibold text-surface-900 text-sm leading-snug mb-1 group-hover:text-primary-700 transition-colors line-clamp-2">{doc.title}</h3>
+                      {doc.course && <p className="text-xs text-surface-400 mb-3">{doc.course}</p>}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={STATUS_COLORS[doc.status]} dot>
-                        {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                      </Badge>
-                      <button
-                        className="p-1 rounded-lg hover:bg-surface-100 text-surface-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <MoreVertical size={14} />
-                      </button>
+                    <div className="flex items-center justify-between text-xs text-surface-400 pt-3 border-t border-surface-100 mt-4">
+                      <span>{doc.pageCount ? `${doc.pageCount} pages` : doc.size ? formatBytes(doc.size) : ""}</span>
+                      <span>{formatDate(doc.uploadedAt)}</span>
                     </div>
-                  </div>
-                  <h3 className="font-semibold text-surface-900 text-sm leading-snug mb-1 group-hover:text-primary-700 transition-colors line-clamp-2">{doc.title}</h3>
-                  {doc.course && <p className="text-xs text-surface-400 mb-3">{doc.course}</p>}
-                  <div className="flex items-center justify-between text-xs text-surface-400 mt-auto pt-3 border-t border-surface-100">
-                    <span>{doc.pageCount ? `${doc.pageCount} pages` : doc.size ? formatBytes(doc.size) : ""}</span>
-                    <span>{formatDate(doc.uploadedAt)}</span>
-                  </div>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+                {/* Delete button positioned absolute in grid hover */}
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id); }}
+                  className="absolute top-2 right-2 p-1.5 bg-white border border-surface-200 rounded-lg text-surface-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-150 shadow-sm"
+                  title="Delete Document"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
             ))}
           </div>
         ) : (
           <div className="space-y-2">
             {filtered.map((doc) => (
-              <Link key={doc.id} href={`/documents/${doc.id}`}>
-                <Card hover padding="sm" className="group">
-                  <div className="flex items-center gap-4 px-2 py-1">
-                    <span className="text-xl shrink-0">{FILE_ICONS[doc.fileType]}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors">{doc.title}</p>
-                      <p className="text-xs text-surface-400">{doc.course} {doc.pageCount && `· ${doc.pageCount} pages`}</p>
+              <div key={doc.id} className="relative">
+                <Link href={`/documents/${doc.id}`}>
+                  <Card hover padding="sm" className="group">
+                    <div className="flex items-center gap-4 px-2 py-1">
+                      <span className="text-xl shrink-0">{FILE_ICONS[doc.fileType]}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors">{doc.title}</p>
+                        <p className="text-xs text-surface-400">{doc.course} {doc.pageCount && `· ${doc.pageCount} pages`}</p>
+                      </div>
+                      <Badge variant={STATUS_COLORS[doc.status]} dot className="shrink-0">
+                        {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                      </Badge>
+                      <span className="text-xs text-surface-400 shrink-0 hidden sm:block">{formatDate(doc.uploadedAt)}</span>
+                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id); }} title="Delete"><Trash2 size={14} /></button>
+                      </div>
                     </div>
-                    <Badge variant={STATUS_COLORS[doc.status]} dot className="shrink-0">
-                      {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                    </Badge>
-                    <span className="text-xs text-surface-400 shrink-0 hidden sm:block">{formatDate(doc.uploadedAt)}</span>
-                    <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400" onClick={(e) => e.preventDefault()} title="View"><Eye size={14} /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400" onClick={(e) => e.preventDefault()} title="Regenerate"><RefreshCw size={14} /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500" onClick={(e) => { e.preventDefault(); setDocs(prev => prev.filter(d => d.id !== doc.id)); }} title="Delete"><Trash2 size={14} /></button>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+              </div>
             ))}
           </div>
         )}

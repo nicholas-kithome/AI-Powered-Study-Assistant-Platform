@@ -1,8 +1,10 @@
 "use client";
+import { useEffect, useState } from "react";
 import Topbar from "@/components/app-shell/Topbar";
 import Card from "@/components/ui/Card";
-import { ProgressBar } from "@/components/ui/Feedback";
-import { MOCK_DOCUMENTS, MOCK_STATS, MOCK_RECOMMENDATIONS } from "@/lib/mock-data";
+import { getStoredDocuments, getStoredStats } from "@/lib/store";
+import { MOCK_RECOMMENDATIONS } from "@/lib/mock-data";
+import { StudyDocument, UserStats } from "@/types";
 import { Upload, ArrowRight, Flame, FileText, BookOpen, TrendingUp, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
@@ -22,9 +24,39 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const recentDocs = MOCK_DOCUMENTS.slice(0, 4);
+  const [docs, setDocs] = useState<StudyDocument[]>([]);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setDocs(getStoredDocuments());
+    setStats(getStoredStats());
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !stats) {
+    return (
+      <div className="animate-fade-in">
+        <Topbar title="Dashboard" />
+        <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
+          <div className="skeleton h-48 w-full rounded-2xl" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array(4).fill(0).map((_, i) => (
+              <div key={i} className="skeleton h-28 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const recentDocs = docs.slice(0, 4);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  // Calculate dynamic stats
+  const docCount = docs.length;
+  const readyCount = docs.filter(d => d.status === 'ready').length;
 
   return (
     <div className="animate-fade-in">
@@ -41,13 +73,15 @@ export default function DashboardPage() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Flame size={18} className="text-amber-300" />
-                <span className="text-sm font-medium text-primary-200">{MOCK_STATS.studyStreak}-day study streak 🔥</span>
+                <span className="text-sm font-medium text-primary-200">{stats.studyStreak}-day study streak 🔥</span>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-1">{greeting}, Alex!</h2>
-              <p className="text-primary-200 text-sm">You have 2 documents ready to study and 1 quiz pending review.</p>
+              <p className="text-primary-200 text-sm">
+                You have {readyCount} {readyCount === 1 ? "document" : "documents"} ready to study and {stats.weeklyGoal - stats.weeklyProgress} sessions to reach your weekly goal.
+              </p>
             </div>
             <Link
-              href="/library?upload=true"
+              href="/library"
               className="inline-flex items-center gap-2 px-5 py-3 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-colors shadow-sm shrink-0 text-sm"
             >
               <Upload size={16} />
@@ -59,12 +93,12 @@ export default function DashboardPage() {
           <div className="relative mt-6 pt-5 border-t border-primary-500">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium text-primary-200">Weekly study goal</span>
-              <span className="text-xs font-bold text-white">{MOCK_STATS.weeklyProgress}/{MOCK_STATS.weeklyGoal} sessions</span>
+              <span className="text-xs font-bold text-white">{stats.weeklyProgress}/{stats.weeklyGoal} sessions</span>
             </div>
             <div className="h-2 bg-primary-500 rounded-full overflow-hidden">
               <div
                 className="h-full bg-white rounded-full transition-all duration-700"
-                style={{ width: `${(MOCK_STATS.weeklyProgress / MOCK_STATS.weeklyGoal) * 100}%` }}
+                style={{ width: `${(stats.weeklyProgress / stats.weeklyGoal) * 100}%` }}
               />
             </div>
           </div>
@@ -73,10 +107,10 @@ export default function DashboardPage() {
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Documents", value: MOCK_STATS.documentsUploaded, icon: <FileText size={18} className="text-primary-500" />, bg: "bg-primary-50" },
-            { label: "Quizzes Taken", value: MOCK_STATS.quizzesTaken, icon: <BookOpen size={18} className="text-violet-500" />, bg: "bg-violet-50" },
-            { label: "Avg. Score", value: `${MOCK_STATS.averageScore}%`, icon: <TrendingUp size={18} className="text-emerald-500" />, bg: "bg-emerald-50" },
-            { label: "Study Minutes", value: MOCK_STATS.totalStudyMinutes, icon: <Flame size={18} className="text-amber-500" />, bg: "bg-amber-50" },
+            { label: "Documents", value: docCount, icon: <FileText size={18} className="text-primary-500" />, bg: "bg-primary-50" },
+            { label: "Quizzes Taken", value: stats.quizzesTaken, icon: <BookOpen size={18} className="text-violet-500" />, bg: "bg-violet-50" },
+            { label: "Avg. Score", value: `${stats.averageScore}%`, icon: <TrendingUp size={18} className="text-emerald-500" />, bg: "bg-emerald-50" },
+            { label: "Study Minutes", value: stats.totalStudyMinutes, icon: <Flame size={18} className="text-amber-500" />, bg: "bg-amber-50" },
           ].map((stat) => (
             <Card key={stat.label} padding="md">
               <div className={clsx("w-9 h-9 rounded-lg flex items-center justify-center mb-3", stat.bg)}>
@@ -98,29 +132,36 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {recentDocs.map((doc) => (
-                <Link key={doc.id} href={`/documents/${doc.id}`}>
-                  <Card hover className="group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-surface-100 flex items-center justify-center text-lg shrink-0">
-                        {doc.fileType === "pdf" ? "📄" : doc.fileType === "docx" ? "📝" : "📃"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors">
-                          {doc.title}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {doc.course && <span className="text-xs text-surface-400">{doc.course}</span>}
-                          {doc.pageCount && <span className="text-xs text-surface-300">· {doc.pageCount} pages</span>}
+              {recentDocs.length === 0 ? (
+                <div className="text-center py-10 bg-white border border-surface-200 rounded-xl">
+                  <p className="text-3xl mb-2">📂</p>
+                  <p className="text-sm text-surface-500">No documents uploaded yet.</p>
+                </div>
+              ) : (
+                recentDocs.map((doc) => (
+                  <Link key={doc.id} href={`/documents/${doc.id}`}>
+                    <Card hover className="group">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-surface-100 flex items-center justify-center text-lg shrink-0">
+                          {doc.fileType === "pdf" ? "📄" : doc.fileType === "docx" ? "📝" : "📃"}
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors">
+                            {doc.title}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {doc.course && <span className="text-xs text-surface-400">{doc.course}</span>}
+                            {doc.pageCount && <span className="text-xs text-surface-300">· {doc.pageCount} pages</span>}
+                          </div>
+                        </div>
+                        <span className={clsx("text-xs font-semibold px-2.5 py-1 rounded-full shrink-0", STATUS_COLORS[doc.status])}>
+                          {STATUS_LABELS[doc.status]}
+                        </span>
                       </div>
-                      <span className={clsx("text-xs font-semibold px-2.5 py-1 rounded-full shrink-0", STATUS_COLORS[doc.status])}>
-                        {STATUS_LABELS[doc.status]}
-                      </span>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+                    </Card>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
 
@@ -143,9 +184,15 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-surface-800 leading-snug mb-1">{rec.title}</p>
                       <p className="text-xs text-surface-500 leading-relaxed mb-3 line-clamp-2">{rec.description}</p>
-                      <button className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1">
-                        {rec.actionLabel} <ArrowRight size={11} />
-                      </button>
+                      {rec.documentId ? (
+                        <Link href={`/documents/${rec.documentId}`} className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1">
+                          {rec.actionLabel} <ArrowRight size={11} />
+                        </Link>
+                      ) : (
+                        <button className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1">
+                          {rec.actionLabel} <ArrowRight size={11} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Card>
