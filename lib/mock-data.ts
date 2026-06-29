@@ -338,3 +338,39 @@ export const MOCK_SUMMARY_EXAM = `## Exam-Focused Summary: ML Fundamentals
 - Confusing validation set with test set
 - Applying test set during training (data leakage)
 - Forgetting to normalize features before distance-based algorithms`;
+
+// ─── AI Context Document ──────────────────────────────────────────
+export const MOCK_DOCUMENT_TEXT = `
+TITLE: Introduction to Machine Learning
+COURSE: CS 4820
+
+1. WHAT IS MACHINE LEARNING?
+Machine Learning (ML) is a subset of Artificial Intelligence (AI) that provides systems the ability to automatically learn and improve from experience without being explicitly programmed. Traditional programming requires hardcoding rules, whereas ML uses data to train models that infer rules.
+
+2. SUPERVISED VS UNSUPERVISED LEARNING
+Supervised Learning algorithms are trained using labeled data. The model learns a mapping from inputs (features) to outputs (labels or targets). Examples include:
+- Classification: Categorizing data into discrete classes (e.g., spam vs. not spam). Common algorithms include Logistic Regression, Random Forest, and Support Vector Machines (SVM).
+- Regression: Predicting continuous values (e.g., house prices). Linear Regression is the most common example.
+
+Unsupervised Learning algorithms are used when the data has no labels. The system tries to learn the patterns and the structure from the data without guidance.
+- Clustering: Grouping similar data points together. K-Means and DBSCAN are popular clustering algorithms.
+- Dimensionality Reduction: Reducing the number of random variables under consideration by obtaining a set of principal variables. Principal Component Analysis (PCA) is widely used.
+
+3. MODEL EVALUATION AND VALIDATION
+When training an ML model, it is critical not to test the model on the data used to train it, as this leads to overfitting. Therefore, datasets are typically split into three sets:
+- Training Set: Used to fit the model parameters. (Usually 70-80% of data)
+- Validation Set: Used to tune hyperparameters (like learning rate) and prevent overfitting during the training process. (Usually 10-15% of data)
+- Test Set: Used exclusively for the final evaluation of the model to provide an unbiased estimate of its performance on unseen data. (Usually 10-15% of data)
+
+4. THE BIAS-VARIANCE TRADEOFF
+- Overfitting (High Variance): The model performs extremely well on training data but poorly on unseen test data. It has memorized the noise instead of learning the signal. Solutions include adding more data, simplifying the model, or using regularization (like L1/Lasso or L2/Ridge).
+- Underfitting (High Bias): The model is too simple to capture the underlying patterns in the data, performing poorly on both training and test data. Solutions include using a more complex model or engineering better features.
+The goal of ML is to find the sweet spot that minimizes both bias and variance.
+
+5. OPTIMIZATION: GRADIENT DESCENT
+Gradient descent is an iterative optimization algorithm for finding the local minimum of a differentiable function. It is heavily used in training neural networks and regressions to minimize the Loss Function. 
+The algorithm calculates the gradient (slope) of the loss function and takes a step in the opposite direction. The size of this step is controlled by a hyperparameter called the Learning Rate (α). 
+- If α is too small, convergence is slow. 
+- If α is too large, the algorithm may overshoot the minimum and diverge.
+Types of Gradient Descent include Batch Gradient Descent (uses entire dataset), Stochastic Gradient Descent (uses one sample), and Mini-batch Gradient Descent (uses a small batch of samples).
+`;
