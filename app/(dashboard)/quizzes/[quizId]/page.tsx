@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Topbar from "@/components/app-shell/Topbar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -12,12 +12,23 @@ import Link from "next/link";
 type QuizPhase = "intro" | "taking" | "review" | "complete";
 
 export default function QuizPage() {
-  const quiz = MOCK_QUIZ;
+  const [quiz, setQuiz] = useState<any>(null);
   const [phase, setPhase] = useState<QuizPhase>("intro");
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<Record<number, number>>({});
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [timeLeft, setTimeLeft] = useState(300); // 5 min
+
+  useEffect(() => {
+    const savedQuiz = localStorage.getItem("study_ai_current_quiz");
+    if (savedQuiz) {
+      setQuiz(JSON.parse(savedQuiz));
+    } else {
+      setQuiz(MOCK_QUIZ);
+    }
+  }, []);
+
+  if (!quiz) return <div className="p-8 text-center animate-pulse text-surface-500">Loading quiz...</div>;
 
   const q = quiz.questions[currentQ];
   const totalQ = quiz.questions.length;

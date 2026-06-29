@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useChat } from "ai/react";
 import Topbar from "@/components/app-shell/Topbar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -56,40 +57,77 @@ export default function DocumentPage() {
   const [summaryMode, setSummaryMode] = useState<SummaryMode>("brief");
   const [generating, setGenerating] = useState(false);
   const [summaryGenerated, setSummaryGenerated] = useState(false);
+  const [generatedSummaryText, setGeneratedSummaryText] = useState("");
   const [copied, setCopied] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(MOCK_CHAT_MESSAGES);
-  const [chatInput, setChatInput] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
 
-  const handleGenerateSummary = () => {
+  // Chat
+  const { messages: chatMessages, input: chatInput, handleInputChange: setChatInput, handleSubmit: handleSendMessage, append, isLoading: chatLoading } = useChat({
+    api: "/api/chat",
+  });
+
+  // Quiz
+  const [quizGenerating, setQuizGenerating] = useState(false);
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [quizDifficulty, setQuizDifficulty] = useState("Medium");
+  const [quizType, setQuizType] = useState("Multiple Choice");
+  const router = useRouter();
+
+  const handleGenerateSummary = async () => {
     setGenerating(true);
-    setTimeout(() => { setGenerating(false); setSummaryGenerated(true); }, 1800);
+    try {
+      const res = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: summaryMode }),
+      });
+      const data = await res.json();
+      if (data.summary) {
+        setGeneratedSummaryText(data.summary);
+        setSummaryGenerated(true);
+      }
+    } catch (error) {
+      console.error("Failed to generate summary", error);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText(SUMMARIES[summaryMode]);
+    navigator.clipboard?.writeText(generatedSummaryText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSendMessage = (text?: string) => {
-    const msg = text ?? chatInput;
-    if (!msg.trim()) return;
-    const newMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content: msg, timestamp: new Date().toISOString() };
-    setChatMessages((prev) => [...prev, newMsg]);
-    setChatInput("");
-    setChatLoading(true);
-    setTimeout(() => {
-      const reply: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        role: "assistant",
-        content: "Based on your uploaded notes, this is a great question. The document covers this topic extensively in the relevant sections. Here's a summary of what your material says about this concept, with key points highlighted for exam preparation.",
-        sources: [{ label: `${doc.title}, p. ${Math.floor(Math.random() * 30) + 1}` }],
-        timestamp: new Date().toISOString(),
-      };
-      setChatMessages((prev) => [...prev, reply]);
-      setChatLoading(false);
-    }, 1500);
+  const handleSuggestedPrompt = (text: string) => {
+    append({ role: "user", content: text });
+  };
+
+  const handleGenerateQuiz = async () => {
+    setQuizGenerating(true);
+    try {
+      const res = await fetch("/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numQuestions, difficulty: quizDifficulty, questionType: quizType }),
+      });
+      const data = await res.json();
+      if (data.quiz) {
+        const newQuiz = {
+          ...data.quiz,
+          id: `quiz-${Date.now()}`,
+          documentId,
+          documentTitle: doc.title,
+          createdAt: new Date().toISOString(),
+        };
+        // Save to localStorage so the quiz page can read it
+        localStorage.setItem("study_ai_current_quiz", JSON.stringify(newQuiz));
+        router.push(`/quizzes/${newQuiz.id}`);
+      }
+    } catch (error) {
+      console.error("Failed to generate quiz", error);
+    } finally {
+      setQuizGenerating(false);
+    }
   };
 
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -246,7 +284,7 @@ export default function DocumentPage() {
                     </div>
                     <div
                       className="ai-prose prose prose-sm max-w-none text-surface-700 text-sm leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdown(SUMMARIES[summaryMode]) }}
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(generatedSummaryText) }}
                     />
                     <p className="mt-6 pt-4 border-t border-surface-100 text-xs text-surface-400 flex items-center gap-1.5">
                       <Lightbulb size={12} />
@@ -267,7 +305,7 @@ export default function DocumentPage() {
                       <label className="block text-sm font-medium text-surface-700 mb-2">Number of questions</label>
                       <div className="flex gap-2">
                         {[5, 10, 15, 20].map((n) => (
-                          <button key={n} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:bg-primary-600 data-[selected=true]:text-white data-[selected=true]:border-primary-600" data-selected={n === 5}>
+                          <button key={n} onClick={() => setNumQuestions(n)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:bg-primary-600 data-[selected=true]:text-white data-[selected=true]:border-primary-600" data-selected={n === numQuestions}>
                             {n}
                           </button>
                         ))}
@@ -277,7 +315,7 @@ export default function DocumentPage() {
                       <label className="block text-sm font-medium text-surface-700 mb-2">Difficulty</label>
                       <div className="flex gap-2">
                         {["Easy", "Medium", "Hard"].map((d) => (
-                          <button key={d} className="px-4 py-2 rounded-lg border border-primary-200 bg-primary-50 text-sm font-medium text-primary-700 first:bg-primary-600 first:text-white first:border-primary-600 hover:border-primary-400 transition-colors">
+                          <button key={d} onClick={() => setQuizDifficulty(d)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-700 data-[selected=true]:bg-primary-50" data-selected={d === quizDifficulty}>
                             {d}
                           </button>
                         ))}
@@ -287,7 +325,7 @@ export default function DocumentPage() {
                       <label className="block text-sm font-medium text-surface-700 mb-2">Question type</label>
                       <div className="flex gap-2">
                         {["Multiple Choice", "True / False", "Mixed"].map((t) => (
-                          <button key={t} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors first:border-primary-600 first:text-primary-700 first:bg-primary-50">
+                          <button key={t} onClick={() => setQuizType(t)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-700 data-[selected=true]:bg-primary-50" data-selected={t === quizType}>
                             {t}
                           </button>
                         ))}
@@ -295,9 +333,9 @@ export default function DocumentPage() {
                     </div>
                   </div>
                   <div className="mt-6 pt-4 border-t border-surface-100">
-                    <Link href="/quizzes/quiz-1">
-                      <Button icon={<Sparkles size={15} />} className="w-full justify-center">Generate Quiz</Button>
-                    </Link>
+                    <Button onClick={handleGenerateQuiz} loading={quizGenerating} icon={<Sparkles size={15} />} className="w-full justify-center">
+                      {quizGenerating ? "Generating Quiz..." : "Generate Quiz"}
+                    </Button>
                   </div>
                 </Card>
               </div>
@@ -312,7 +350,7 @@ export default function DocumentPage() {
                     {SUGGESTED_PROMPTS.map((p) => (
                       <button
                         key={p}
-                        onClick={() => handleSendMessage(p)}
+                        onClick={() => handleSuggestedPrompt(p)}
                         className="px-3 py-1.5 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-surface-200 hover:border-primary-200 rounded-full text-xs text-surface-600 transition-colors"
                       >
                         {p}
@@ -366,26 +404,27 @@ export default function DocumentPage() {
                   )}
                 </div>
 
-                {/* Composer */}
                 <div className="border border-surface-200 rounded-2xl bg-white shadow-card overflow-hidden">
-                  <textarea
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                  <form onSubmit={handleSendMessage}>
+                    <textarea
+                      value={chatInput}
+                      onChange={setChatInput}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }}
                     placeholder="Ask anything about this document..."
                     rows={2}
                     className="w-full px-4 pt-3 pb-1 text-sm text-surface-800 placeholder-surface-400 resize-none focus:outline-none"
                   />
-                  <div className="flex items-center justify-between px-3 pb-3">
-                    <span className="text-xs text-surface-400">Shift+Enter for newline · Enter to send</span>
-                    <button
-                      onClick={() => handleSendMessage()}
-                      disabled={!chatInput.trim() || chatLoading}
-                      className="p-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-40 text-white rounded-xl transition-colors"
-                    >
-                      <Send size={15} />
-                    </button>
-                  </div>
+                    <div className="flex items-center justify-between px-3 pb-3">
+                      <span className="text-xs text-surface-400">Shift+Enter for newline · Enter to send</span>
+                      <button
+                        type="submit"
+                        disabled={!chatInput.trim() || chatLoading}
+                        className="p-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-40 text-white rounded-xl transition-colors"
+                      >
+                        <Send size={15} />
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
