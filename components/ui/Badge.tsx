@@ -10,13 +10,13 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  blue:   "bg-blue-100 text-blue-700 border border-blue-200",
-  teal:   "bg-teal-100 text-teal-700 border border-teal-200",
-  amber:  "bg-amber-100 text-amber-700 border border-amber-200",
-  red:    "bg-red-100 text-red-700 border border-red-200",
-  green:  "bg-emerald-100 text-emerald-700 border border-emerald-200",
-  gray:   "bg-surface-100 text-surface-600 border border-surface-200",
-  purple: "bg-purple-100 text-purple-700 border border-purple-200",
+  blue:   "bg-blue-900/30 text-blue-400 border border-blue-700/50",
+  teal:   "bg-teal-900/30 text-teal-400 border border-teal-700/50",
+  amber:  "bg-amber-900/30 text-amber-400 border border-amber-700/50",
+  red:    "bg-red-900/30 text-red-400 border border-red-700/50",
+  green:  "bg-emerald-900/30 text-emerald-400 border border-emerald-700/50",
+  gray:   "bg-surface-700 text-surface-300 border border-surface-600",
+  purple: "bg-purple-900/30 text-purple-400 border border-purple-700/50",
 };
 
 const dotColors = {

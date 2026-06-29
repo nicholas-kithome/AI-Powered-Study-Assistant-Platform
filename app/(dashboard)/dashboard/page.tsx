@@ -24,10 +24,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STAT_META = [
-  { label: "Documents",     icon: <FileText   size={18} className="text-primary-500" />,  bg: "bg-primary-50",  iconBg: "bg-primary-100" },
-  { label: "Quizzes Taken", icon: <BookOpen   size={18} className="text-violet-500" />,   bg: "bg-violet-50",   iconBg: "bg-violet-100"  },
-  { label: "Avg. Score",    icon: <TrendingUp size={18} className="text-emerald-500" />,  bg: "bg-emerald-50",  iconBg: "bg-emerald-100" },
-  { label: "Study Mins",    icon: <Flame      size={18} className="text-amber-500" />,    bg: "bg-amber-50",    iconBg: "bg-amber-100"   },
+  { label: "Documents",     icon: <FileText   size={18} className="text-primary-400" />,  bg: "bg-primary-900/30",  iconBg: "bg-primary-900/50" },
+  { label: "Quizzes Taken", icon: <BookOpen   size={18} className="text-accent-400" />,   bg: "bg-accent-900/30",   iconBg: "bg-accent-900/50"  },
+  { label: "Avg. Score",    icon: <TrendingUp size={18} className="text-emerald-400" />,  bg: "bg-emerald-900/30",  iconBg: "bg-emerald-900/50" },
+  { label: "Study Mins",    icon: <Flame      size={18} className="text-amber-400" />,    bg: "bg-amber-900/30",    iconBg: "bg-amber-900/50"   },
 ];
 
 export default function DashboardPage() {
@@ -101,9 +101,9 @@ export default function DashboardPage() {
 
             <Link
               href="/library"
-              className="btn-shine inline-flex items-center gap-2 px-5 py-3 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-200 shadow-md shrink-0 text-sm active:scale-95 animate-slide-up stagger-2"
+              className="btn-shine inline-flex items-center gap-2 px-5 py-3 bg-surface-700 text-surface-100 font-semibold rounded-xl hover:bg-surface-600 border border-surface-600 transition-all duration-200 shadow-md shrink-0 text-sm active:scale-95 animate-slide-up stagger-2"
             >
-              <Upload size={15} />
+              <Upload size={15} className="text-primary-500" />
               Upload Notes
             </Link>
           </div>
@@ -137,10 +137,10 @@ export default function DashboardPage() {
               <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-transform duration-200 hover:scale-110", meta.iconBg)}>
                 {meta.icon}
               </div>
-              <p className="text-2xl font-bold text-surface-900 tabular-nums">
+              <p className="text-2xl font-bold text-surface-100 tabular-nums">
                 {statValues[i]}
               </p>
-              <p className="text-xs text-surface-500 mt-0.5">{meta.label}</p>
+              <p className="text-xs text-surface-400 mt-0.5">{meta.label}</p>
             </Card>
           ))}
         </div>
@@ -151,10 +151,10 @@ export default function DashboardPage() {
           {/* Recent Documents */}
           <div className="lg:col-span-2 space-y-4 animate-slide-up stagger-2">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-surface-900">Recent Documents</h2>
+              <h2 className="font-bold text-surface-100">Recent Documents</h2>
               <Link
                 href="/library"
-                className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1 transition-colors group"
+                className="text-sm text-primary-500 hover:text-primary-400 flex items-center gap-1 transition-colors group"
               >
                 View all
                 <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -163,10 +163,10 @@ export default function DashboardPage() {
 
             <div className="space-y-2.5">
               {recentDocs.length === 0 ? (
-                <div className="text-center py-12 bg-white border border-surface-200 rounded-xl">
+                <div className="text-center py-12 bg-surface-700 border border-surface-600 rounded-xl">
                   <p className="text-4xl mb-2 animate-float">📂</p>
-                  <p className="text-sm font-medium text-surface-600">No documents yet</p>
-                  <p className="text-xs text-surface-400 mt-1">Upload your first set of notes to get started</p>
+                  <p className="text-sm font-medium text-surface-300">No documents yet</p>
+                  <p className="text-xs text-surface-500 mt-1">Upload your first set of notes to get started</p>
                 </div>
               ) : (
                 recentDocs.map((doc, i) => (
@@ -177,16 +177,16 @@ export default function DashboardPage() {
                       className={clsx("group animate-slide-up", `stagger-${i + 1}`)}
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
+                        <div className="w-10 h-10 rounded-xl bg-surface-600 flex items-center justify-center text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
                           {doc.fileType === "pdf" ? "📄" : doc.fileType === "docx" ? "📝" : "📃"}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-surface-900 text-sm truncate group-hover:text-primary-700 transition-colors duration-150">
+                          <p className="font-semibold text-surface-100 text-sm truncate group-hover:text-primary-400 transition-colors duration-150">
                             {doc.title}
                           </p>
                           <div className="flex items-center gap-2 mt-0.5">
                             {doc.course    && <span className="text-xs text-surface-400">{doc.course}</span>}
-                            {doc.pageCount && <span className="text-xs text-surface-300">· {doc.pageCount} pages</span>}
+                            {doc.pageCount && <span className="text-xs text-surface-500">· {doc.pageCount} pages</span>}
                           </div>
                         </div>
                         <span className={clsx("text-xs font-semibold px-2.5 py-1 rounded-full shrink-0", STATUS_COLORS[doc.status])}>
@@ -203,13 +203,13 @@ export default function DashboardPage() {
           {/* Recommendations sidebar */}
           <div className="space-y-4 animate-slide-up stagger-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-surface-900 flex items-center gap-2">
-                <Sparkles size={15} className="text-accent-500 animate-pulse-glow" />
+              <h2 className="font-bold text-surface-100 flex items-center gap-2">
+                <Sparkles size={15} className="text-accent-400 animate-pulse-glow" />
                 Recommended
               </h2>
               <Link
                 href="/recommendations"
-                className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1 transition-colors group"
+                className="text-sm text-primary-500 hover:text-primary-400 flex items-center gap-1 transition-colors group"
               >
                 See all
                 <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -230,22 +230,22 @@ export default function DashboardPage() {
                       {rec.icon}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-surface-800 leading-snug mb-1">
+                      <p className="text-sm font-semibold text-surface-200 leading-snug mb-1">
                         {rec.title}
                       </p>
-                      <p className="text-xs text-surface-500 leading-relaxed mb-2.5 line-clamp-2">
+                      <p className="text-xs text-surface-400 leading-relaxed mb-2.5 line-clamp-2">
                         {rec.description}
                       </p>
                       {rec.documentId ? (
                         <Link
                           href={`/documents/${rec.documentId}`}
-                          className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors"
+                          className="text-xs font-semibold text-primary-500 hover:text-primary-400 flex items-center gap-1 group transition-colors"
                         >
                           {rec.actionLabel}
                           <ArrowRight size={11} className="transition-transform duration-150 group-hover:translate-x-0.5" />
                         </Link>
                       ) : (
-                        <button className="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors">
+                        <button className="text-xs font-semibold text-primary-500 hover:text-primary-400 flex items-center gap-1 group transition-colors">
                           {rec.actionLabel}
                           <ArrowRight size={11} className="transition-transform duration-150 group-hover:translate-x-0.5" />
                         </button>

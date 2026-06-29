@@ -34,18 +34,18 @@ const SUGGESTED_PROMPTS = [
 
 function renderMarkdown(content: string) {
   return content
-    .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-surface-900 mt-5 mb-2">$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-surface-800 mt-4 mb-1.5">$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-surface-900">$1</strong>')
-    .replace(/`(.+?)`/g, '<code class="bg-surface-100 text-primary-700 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 text-surface-700 text-sm before:content-[\'•\'] before:mr-2 before:text-surface-400">$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 text-surface-700 text-sm list-decimal list-inside">$1</li>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-surface-100 mt-5 mb-2">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-surface-200 mt-4 mb-1.5">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-surface-100">$1</strong>')
+    .replace(/`(.+?)`/g, '<code class="bg-surface-700 text-primary-400 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 text-surface-300 text-sm before:content-[\'•\'] before:mr-2 before:text-surface-500">$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 text-surface-300 text-sm list-decimal list-inside">$1</li>')
     .replace(/^\| (.+) \|$/gm, (m) => {
       if (m.includes('---')) return '';
-      const cells = m.split('|').filter(Boolean).map(c => `<td class="px-3 py-2 text-sm text-surface-700 border border-surface-200">${c.trim()}</td>`).join('');
+      const cells = m.split('|').filter(Boolean).map(c => `<td class="px-3 py-2 text-sm text-surface-300 border border-surface-600">${c.trim()}</td>`).join('');
       return `<tr>${cells}</tr>`;
     })
-    .replace(/\n\n/g, '</p><p class="text-surface-700 text-sm mb-2">')
+    .replace(/\n\n/g, '</p><p class="text-surface-300 text-sm mb-2">')
     .replace(/^(?!<[hltd]).+$/gm, (m) => m.trim() ? m : '');
 }
 
@@ -148,33 +148,33 @@ export default function DocumentPage() {
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Left panel: doc info */}
-        <aside className="hidden lg:flex flex-col w-64 border-r border-surface-200 bg-white p-5 gap-4">
-          <div className="w-12 h-12 rounded-xl bg-surface-100 flex items-center justify-center text-2xl">
+        <aside className="hidden lg:flex flex-col w-64 border-r border-surface-600 bg-surface-800 p-5 gap-4">
+          <div className="w-12 h-12 rounded-xl bg-surface-700 flex items-center justify-center text-2xl">
             {doc.fileType === "pdf" ? "📄" : doc.fileType === "docx" ? "📝" : "📃"}
           </div>
           <div>
-            <h2 className="font-bold text-surface-900 text-sm leading-snug mb-1">{doc.title}</h2>
-            {doc.course && <p className="text-xs text-surface-400">{doc.course}</p>}
+            <h2 className="font-bold text-surface-100 text-sm leading-snug mb-1">{doc.title}</h2>
+            {doc.course && <p className="text-xs text-surface-500">{doc.course}</p>}
           </div>
           <div className="space-y-2 text-xs text-surface-500">
-            {doc.pageCount && <div className="flex justify-between"><span>Pages</span><span className="font-medium text-surface-700">{doc.pageCount}</span></div>}
-            {doc.wordCount && <div className="flex justify-between"><span>Words</span><span className="font-medium text-surface-700">{doc.wordCount.toLocaleString()}</span></div>}
-            <div className="flex justify-between"><span>Type</span><span className="font-medium text-surface-700 uppercase">{doc.fileType}</span></div>
+            {doc.pageCount && <div className="flex justify-between"><span>Pages</span><span className="font-medium text-surface-300">{doc.pageCount}</span></div>}
+            {doc.wordCount && <div className="flex justify-between"><span>Words</span><span className="font-medium text-surface-300">{doc.wordCount.toLocaleString()}</span></div>}
+            <div className="flex justify-between"><span>Type</span><span className="font-medium text-surface-300 uppercase">{doc.fileType}</span></div>
             <div className="flex justify-between"><span>Status</span>
               <Badge variant={doc.status === "ready" ? "green" : doc.status === "processing" ? "amber" : "red"} dot size="sm">
                 {doc.status}
               </Badge>
             </div>
           </div>
-          <hr className="border-surface-100" />
+          <hr className="border-surface-700" />
           <div className="space-y-2">
             <p className="text-xs font-semibold text-surface-500 uppercase tracking-wide">Quick Actions</p>
             <Link href="/quizzes/quiz-1">
-              <button className="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-50 text-sm text-surface-700 transition-colors">
+              <button className="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-700 text-sm text-surface-300 transition-colors">
                 <BookOpen size={15} className="text-violet-500" /> Generate Quiz
               </button>
             </Link>
-            <button className="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-50 text-sm text-surface-700 transition-colors" onClick={() => setActiveTab("chat")}>
+            <button className="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-700 text-sm text-surface-300 transition-colors" onClick={() => setActiveTab("chat")}>
               <MessageSquare size={15} className="text-accent-500" /> Ask a Question
             </button>
           </div>
@@ -183,7 +183,7 @@ export default function DocumentPage() {
         {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Tab bar */}
-          <div className="flex gap-1 px-4 md:px-6 pt-4 border-b border-surface-200 bg-white">
+          <div className="flex gap-1 px-4 md:px-6 pt-4 border-b border-surface-600 bg-surface-800">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -191,8 +191,8 @@ export default function DocumentPage() {
                 className={clsx(
                   "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors border-b-2 -mb-px",
                   activeTab === tab.id
-                    ? "text-primary-700 border-primary-600 bg-primary-50"
-                    : "text-surface-500 border-transparent hover:text-surface-800 hover:bg-surface-50"
+                    ? "text-primary-400 border-primary-600 bg-primary-900/30"
+                    : "text-surface-500 border-transparent hover:text-surface-200 hover:bg-surface-700"
                 )}
               >
                 {tab.icon}
@@ -217,7 +217,7 @@ export default function DocumentPage() {
                           "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border",
                           summaryMode === m
                             ? "bg-primary-600 text-white border-primary-600"
-                            : "bg-white text-surface-600 border-surface-200 hover:border-surface-300"
+                            : "bg-surface-800 text-surface-500 border-surface-600 hover:border-surface-500"
                         )}
                       >
                         {m.charAt(0).toUpperCase() + m.slice(1)}
@@ -245,7 +245,7 @@ export default function DocumentPage() {
                   <Card padding="lg">
                     <div className="text-center py-8">
                       <Sparkles size={40} className="text-primary-300 mx-auto mb-4" />
-                      <h3 className="font-semibold text-surface-800 mb-2">Ready to generate your summary</h3>
+                      <h3 className="font-semibold text-surface-200 mb-2">Ready to generate your summary</h3>
                       <p className="text-sm text-surface-500 mb-6">Choose a mode above and click Generate Summary to get started.</p>
                       <Button onClick={handleGenerateSummary} icon={<Sparkles size={15} />}>Generate Summary</Button>
                     </div>
@@ -256,12 +256,12 @@ export default function DocumentPage() {
                   <Card padding="lg">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 rounded-lg bg-accent-100 flex items-center justify-center ai-glow">
+                        <div className="w-8 h-8 rounded-lg bg-accent-900/30 flex items-center justify-center ai-glow">
                           <Sparkles size={16} className="text-accent-600" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-surface-800">Generating {summaryMode} summary...</p>
-                          <p className="text-xs text-surface-400">Reading 42 pages of content</p>
+                          <p className="text-sm font-semibold text-surface-200">Generating {summaryMode} summary...</p>
+                          <p className="text-xs text-surface-500">Reading 42 pages of content</p>
                         </div>
                       </div>
                       {[80, 100, 60, 90, 70].map((w, i) => (
@@ -273,20 +273,20 @@ export default function DocumentPage() {
 
                 {summaryGenerated && (
                   <Card padding="lg" className="animate-fade-in">
-                    <div className="flex items-center gap-2 mb-5 pb-4 border-b border-surface-100">
-                      <div className="w-7 h-7 rounded-lg bg-accent-100 flex items-center justify-center">
+                    <div className="flex items-center gap-2 mb-5 pb-4 border-b border-surface-700">
+                      <div className="w-7 h-7 rounded-lg bg-accent-900/30 flex items-center justify-center">
                         <Sparkles size={14} className="text-accent-600" />
                       </div>
                       <div>
                         <span className="text-xs font-bold text-accent-700 uppercase tracking-wide">AI Generated</span>
-                        <span className="text-xs text-surface-400 ml-2">· {summaryMode} mode · {doc.title}</span>
+                        <span className="text-xs text-surface-500 ml-2">· {summaryMode} mode · {doc.title}</span>
                       </div>
                     </div>
                     <div
-                      className="ai-prose prose prose-sm max-w-none text-surface-700 text-sm leading-relaxed"
+                      className="ai-prose prose prose-sm max-w-none text-surface-300 text-sm leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(generatedSummaryText) }}
                     />
-                    <p className="mt-6 pt-4 border-t border-surface-100 text-xs text-surface-400 flex items-center gap-1.5">
+                    <p className="mt-6 pt-4 border-t border-surface-700 text-xs text-surface-500 flex items-center gap-1.5">
                       <Lightbulb size={12} />
                       AI-generated content. Always verify against your original notes.
                     </p>
@@ -299,40 +299,40 @@ export default function DocumentPage() {
             {activeTab === "quiz" && (
               <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
                 <Card padding="lg">
-                  <h3 className="font-bold text-surface-900 mb-5">Quiz Settings</h3>
+                  <h3 className="font-bold text-surface-100 mb-5">Quiz Settings</h3>
                   <div className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-2">Number of questions</label>
+                      <label className="block text-sm font-medium text-surface-300 mb-2">Number of questions</label>
                       <div className="flex gap-2">
                         {[5, 10, 15, 20].map((n) => (
-                          <button key={n} onClick={() => setNumQuestions(n)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:bg-primary-600 data-[selected=true]:text-white data-[selected=true]:border-primary-600" data-selected={n === numQuestions}>
+                          <button key={n} onClick={() => setNumQuestions(n)} className="px-4 py-2 rounded-lg border border-surface-600 text-sm font-medium text-surface-500 hover:border-primary-400 hover:text-primary-400 transition-colors data-[selected=true]:bg-primary-600 data-[selected=true]:text-white data-[selected=true]:border-primary-600" data-selected={n === numQuestions}>
                             {n}
                           </button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-2">Difficulty</label>
+                      <label className="block text-sm font-medium text-surface-300 mb-2">Difficulty</label>
                       <div className="flex gap-2">
                         {["Easy", "Medium", "Hard"].map((d) => (
-                          <button key={d} onClick={() => setQuizDifficulty(d)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-700 data-[selected=true]:bg-primary-50" data-selected={d === quizDifficulty}>
+                          <button key={d} onClick={() => setQuizDifficulty(d)} className="px-4 py-2 rounded-lg border border-surface-600 text-sm font-medium text-surface-500 hover:border-primary-400 hover:text-primary-400 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-400 data-[selected=true]:bg-primary-900/30" data-selected={d === quizDifficulty}>
                             {d}
                           </button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-2">Question type</label>
+                      <label className="block text-sm font-medium text-surface-300 mb-2">Question type</label>
                       <div className="flex gap-2">
                         {["Multiple Choice", "True / False", "Mixed"].map((t) => (
-                          <button key={t} onClick={() => setQuizType(t)} className="px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:border-primary-400 hover:text-primary-700 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-700 data-[selected=true]:bg-primary-50" data-selected={t === quizType}>
+                          <button key={t} onClick={() => setQuizType(t)} className="px-4 py-2 rounded-lg border border-surface-600 text-sm font-medium text-surface-500 hover:border-primary-400 hover:text-primary-400 transition-colors data-[selected=true]:border-primary-600 data-[selected=true]:text-primary-400 data-[selected=true]:bg-primary-900/30" data-selected={t === quizType}>
                             {t}
                           </button>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-surface-100">
+                  <div className="mt-6 pt-4 border-t border-surface-700">
                     <Button onClick={handleGenerateQuiz} loading={quizGenerating} icon={<Sparkles size={15} />} className="w-full justify-center">
                       {quizGenerating ? "Generating Quiz..." : "Generate Quiz"}
                     </Button>
@@ -351,7 +351,7 @@ export default function DocumentPage() {
                       <button
                         key={p}
                         onClick={() => handleSuggestedPrompt(p)}
-                        className="px-3 py-1.5 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-surface-200 hover:border-primary-200 rounded-full text-xs text-surface-600 transition-colors"
+                        className="px-3 py-1.5 bg-surface-700 hover:bg-primary-900/30 hover:text-primary-400 border border-surface-600 hover:border-primary-200 rounded-full text-xs text-surface-500 transition-colors"
                       >
                         {p}
                       </button>
@@ -371,14 +371,14 @@ export default function DocumentPage() {
                           "px-4 py-3 rounded-2xl text-sm leading-relaxed",
                           msg.role === "user"
                             ? "bg-primary-600 text-white rounded-tr-sm"
-                            : "bg-white border border-surface-200 text-surface-800 rounded-tl-sm shadow-card"
+                            : "bg-surface-800 border border-surface-600 text-surface-200 rounded-tl-sm shadow-card"
                         )}
                           dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
                         />
                         {msg.sources && msg.sources.length > 0 && (
                           <div className="flex flex-wrap gap-1.5">
                             {msg.sources.map((s, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-primary-50 border border-primary-100 text-primary-700 text-xs rounded-full font-medium">
+                              <span key={i} className="px-2 py-0.5 bg-primary-900/30 border border-primary-100 text-primary-400 text-xs rounded-full font-medium">
                                 📎 {s.label}
                               </span>
                             ))}
@@ -393,7 +393,7 @@ export default function DocumentPage() {
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-400 to-primary-400 flex items-center justify-center">
                         <Sparkles size={12} className="text-white" />
                       </div>
-                      <div className="px-4 py-3 bg-white border border-surface-200 rounded-2xl rounded-tl-sm shadow-card">
+                      <div className="px-4 py-3 bg-surface-800 border border-surface-600 rounded-2xl rounded-tl-sm shadow-card">
                         <div className="flex gap-1.5 items-center h-5">
                           <div className="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                           <div className="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -404,7 +404,7 @@ export default function DocumentPage() {
                   )}
                 </div>
 
-                <div className="border border-surface-200 rounded-2xl bg-white shadow-card overflow-hidden">
+                <div className="border border-surface-600 rounded-2xl bg-surface-800 shadow-card overflow-hidden">
                   <form onSubmit={handleSendMessage}>
                     <textarea
                       value={chatInput}
@@ -412,10 +412,10 @@ export default function DocumentPage() {
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }}
                     placeholder="Ask anything about this document..."
                     rows={2}
-                    className="w-full px-4 pt-3 pb-1 text-sm text-surface-800 placeholder-surface-400 resize-none focus:outline-none"
+                    className="w-full px-4 pt-3 pb-1 text-sm text-surface-200 placeholder-surface-400 resize-none focus:outline-none"
                   />
                     <div className="flex items-center justify-between px-3 pb-3">
-                      <span className="text-xs text-surface-400">Shift+Enter for newline · Enter to send</span>
+                      <span className="text-xs text-surface-500">Shift+Enter for newline · Enter to send</span>
                       <button
                         type="submit"
                         disabled={!chatInput.trim() || chatLoading}
@@ -433,22 +433,22 @@ export default function DocumentPage() {
             {activeTab === "sources" && (
               <div className="max-w-2xl mx-auto animate-fade-in">
                 <Card padding="lg">
-                  <h3 className="font-bold text-surface-900 mb-4">Source Document</h3>
+                  <h3 className="font-bold text-surface-100 mb-4">Source Document</h3>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 bg-surface-50 rounded-xl border border-surface-200">
+                    <div className="flex items-center gap-4 p-4 bg-surface-700 rounded-xl border border-surface-600">
                       <span className="text-3xl">{doc.fileType === "pdf" ? "📄" : "📝"}</span>
                       <div>
-                        <p className="font-semibold text-surface-900 text-sm">{doc.title}</p>
-                        <p className="text-xs text-surface-400 mt-1">{doc.course} · {doc.pageCount} pages · {doc.fileType.toUpperCase()}</p>
+                        <p className="font-semibold text-surface-100 text-sm">{doc.title}</p>
+                        <p className="text-xs text-surface-500 mt-1">{doc.course} · {doc.pageCount} pages · {doc.fileType.toUpperCase()}</p>
                       </div>
                       <Badge variant="green" dot className="ml-auto">Ready</Badge>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-surface-700 mb-3">AI Indexed Sections</p>
+                      <p className="text-sm font-semibold text-surface-300 mb-3">AI Indexed Sections</p>
                       <div className="space-y-2">
                         {["Introduction & Overview (p. 1–8)", "Supervised Learning (p. 9–18)", "Unsupervised Learning (p. 19–26)", "Model Evaluation (p. 27–34)", "Advanced Algorithms (p. 35–42)"].map((section) => (
-                          <div key={section} className="flex items-center justify-between px-4 py-2.5 bg-white border border-surface-200 rounded-lg">
-                            <span className="text-sm text-surface-700">{section}</span>
+                          <div key={section} className="flex items-center justify-between px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg">
+                            <span className="text-sm text-surface-300">{section}</span>
                             <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
                           </div>
                         ))}

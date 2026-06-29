@@ -36,7 +36,7 @@ export default function Card({
     <div
       onClick={onClick}
       className={clsx(
-        "bg-white rounded-card border border-surface-200 shadow-card",
+        "bg-surface-700 rounded-card border border-surface-600 shadow-card",
         "transition-all duration-200",
         hover && "hover:shadow-card-hover hover:-translate-y-1 cursor-pointer",
         glow && glowStyles[glow],

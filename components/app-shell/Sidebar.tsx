@@ -24,7 +24,7 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        "hidden md:flex flex-col h-screen bg-white border-r border-surface-100",
+        "hidden md:flex flex-col h-screen bg-surface-800 border-r border-surface-700",
         "sticky top-0 z-30",
         "transition-[width] duration-300 ease-spring",
         collapsed ? "w-16" : "w-60"
@@ -33,7 +33,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div
         className={clsx(
-          "flex items-center gap-3 px-4 py-5 border-b border-surface-100",
+          "flex items-center gap-3 px-4 py-5 border-b border-surface-700",
           collapsed && "justify-center px-2"
         )}
       >
@@ -41,7 +41,7 @@ export default function Sidebar() {
           <Sparkles size={15} className="text-white" />
         </div>
         {!collapsed && (
-          <span className="font-bold text-surface-900 text-base tracking-tight animate-fade-in">
+          <span className="font-bold text-surface-100 text-base tracking-tight animate-fade-in">
             StudyAI
           </span>
         )}
@@ -82,8 +82,8 @@ export default function Sidebar() {
                 "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium",
                 "transition-all duration-200 animate-slide-up",
                 active
-                  ? "bg-primary-50 text-primary-700 shadow-inner-glow nav-active-pill active"
-                  : "text-surface-600 hover:bg-surface-50 hover:text-surface-900",
+                  ? "bg-surface-700 text-primary-400 shadow-inner-glow nav-active-pill active"
+                  : "text-surface-400 hover:bg-surface-700 hover:text-surface-100",
                 collapsed && "justify-center px-2"
               )}
             >
@@ -106,18 +106,18 @@ export default function Sidebar() {
       </nav>
 
       {/* User + Collapse */}
-      <div className="border-t border-surface-100 p-3 space-y-1">
+      <div className="border-t border-surface-700 p-3 space-y-1">
         {!collapsed && (
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-50 transition-colors group cursor-pointer animate-fade-in">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center text-white text-sm font-bold shrink-0 ring-2 ring-white shadow-sm group-hover:ring-primary-200 transition-all duration-200">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-700 transition-colors group cursor-pointer animate-fade-in">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white text-sm font-bold shrink-0 ring-2 ring-surface-800 shadow-sm group-hover:ring-surface-600 transition-all duration-200">
               A
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-surface-900 truncate">Alex Johnson</p>
+              <p className="text-sm font-semibold text-surface-100 truncate">Alex Johnson</p>
               <p className="text-xs text-surface-400 truncate">alex@university.edu</p>
             </div>
             <button
-              className="p-1 rounded-lg hover:bg-surface-200 text-surface-400 hover:text-surface-600 transition-colors"
+              className="p-1 rounded-lg hover:bg-surface-600 text-surface-400 hover:text-surface-200 transition-colors"
               title="Sign out"
             >
               <LogOut size={13} />
@@ -127,8 +127,8 @@ export default function Sidebar() {
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={clsx(
-            "flex items-center gap-2 w-full px-2 py-2 rounded-xl text-xs text-surface-500",
-            "hover:bg-surface-100 hover:text-surface-700 transition-all duration-150 active:scale-95",
+            "flex items-center gap-2 w-full px-2 py-2 rounded-xl text-xs text-surface-400",
+            "hover:bg-surface-700 hover:text-surface-200 transition-all duration-150 active:scale-95",
             collapsed && "justify-center"
           )}
         >

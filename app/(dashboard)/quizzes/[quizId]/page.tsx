@@ -70,7 +70,7 @@ export default function QuizPage() {
     .filter((v, i, a) => a.indexOf(v) === i) as string[];
 
   const SCORE_COLOR = score >= 80 ? "text-emerald-600" : score >= 60 ? "text-amber-600" : "text-red-600";
-  const SCORE_BG = score >= 80 ? "bg-emerald-50 border-emerald-200" : score >= 60 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+  const SCORE_BG = score >= 80 ? "bg-emerald-50 border-emerald-700/50" : score >= 60 ? "bg-amber-50 border-amber-700/50" : "bg-red-50 border-red-700/50";
 
   return (
     <div className="animate-fade-in">
@@ -91,7 +91,7 @@ export default function QuizPage() {
                 <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
                   <BookOpen size={28} className="text-violet-600" />
                 </div>
-                <h1 className="text-2xl font-bold text-surface-900 mb-2">{quiz.title}</h1>
+                <h1 className="text-2xl font-bold text-surface-100 mb-2">{quiz.title}</h1>
                 <p className="text-surface-500 text-sm mb-6">From: {quiz.documentTitle}</p>
                 <div className="flex justify-center gap-6 mb-8">
                   {[
@@ -100,8 +100,8 @@ export default function QuizPage() {
                     { label: "Est. Time", value: `${totalQ} min` },
                   ].map((s) => (
                     <div key={s.label} className="text-center">
-                      <p className="text-xl font-bold text-surface-900">{s.value}</p>
-                      <p className="text-xs text-surface-400">{s.label}</p>
+                      <p className="text-xl font-bold text-surface-100">{s.value}</p>
+                      <p className="text-xs text-surface-500">{s.label}</p>
                     </div>
                   ))}
                 </div>
@@ -117,35 +117,35 @@ export default function QuizPage() {
         {phase === "taking" && (
           <div className="space-y-4 animate-fade-in">
             {/* Progress */}
-            <div className="flex items-center justify-between text-sm text-surface-600 mb-2">
+            <div className="flex items-center justify-between text-sm text-surface-500 mb-2">
               <span>Question {currentQ + 1} of {totalQ}</span>
               <div className="flex items-center gap-2">
-                <Clock size={14} className="text-surface-400" />
+                <Clock size={14} className="text-surface-500" />
                 <span className="font-mono font-medium">{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}</span>
               </div>
             </div>
             <div className="h-2 bg-surface-200 rounded-full overflow-hidden">
-              <div className="h-full bg-primary-500 rounded-full transition-all duration-300" style={{ width: `${((currentQ) / totalQ) * 100}%` }} />
+              <div className="h-full bg-primary-900/300 rounded-full transition-all duration-300" style={{ width: `${((currentQ) / totalQ) * 100}%` }} />
             </div>
 
             <Card padding="lg">
               {/* Topic badge */}
               {q.topic && <Badge variant="gray" className="mb-4">{q.topic}</Badge>}
 
-              <h2 className="text-base font-semibold text-surface-900 leading-relaxed mb-6">{q.prompt}</h2>
+              <h2 className="text-base font-semibold text-surface-100 leading-relaxed mb-6">{q.prompt}</h2>
 
               {/* Choices */}
               <div className="space-y-3">
                 {q.choices.map((choice, i) => {
                   const isSelected = selected[currentQ] === i;
                   const isAnswer = q.answerIndex === i;
-                  let style = "border-surface-200 bg-white text-surface-700 hover:border-primary-300 hover:bg-primary-50";
+                  let style = "border-surface-600 bg-surface-800 text-surface-300 hover:border-primary-300 hover:bg-primary-900/30";
                   if (isRevealed) {
-                    if (isAnswer) style = "border-emerald-400 bg-emerald-50 text-emerald-800";
-                    else if (isSelected && !isAnswer) style = "border-red-400 bg-red-50 text-red-800";
-                    else style = "border-surface-200 bg-surface-50 text-surface-400";
+                    if (isAnswer) style = "border-emerald-400 bg-emerald-50 text-emerald-300";
+                    else if (isSelected && !isAnswer) style = "border-red-400 bg-red-50 text-red-300";
+                    else style = "border-surface-600 bg-surface-700 text-surface-500";
                   } else if (isSelected) {
-                    style = "border-primary-400 bg-primary-50 text-primary-800";
+                    style = "border-primary-400 bg-primary-900/30 text-primary-800";
                   }
 
                   return (
@@ -178,15 +178,15 @@ export default function QuizPage() {
               {isRevealed && (
                 <div className={clsx(
                   "mt-5 p-4 rounded-xl border",
-                  isCorrect ? "bg-emerald-50 border-emerald-200" : "bg-amber-50 border-amber-200"
+                  isCorrect ? "bg-emerald-50 border-emerald-700/50" : "bg-amber-50 border-amber-700/50"
                 )}>
                   <div className="flex items-center gap-2 mb-2">
                     <Lightbulb size={15} className={isCorrect ? "text-emerald-600" : "text-amber-600"} />
-                    <span className={clsx("text-sm font-semibold", isCorrect ? "text-emerald-800" : "text-amber-800")}>
+                    <span className={clsx("text-sm font-semibold", isCorrect ? "text-emerald-300" : "text-amber-300")}>
                       {isCorrect ? "Correct!" : "Not quite — here's why:"}
                     </span>
                   </div>
-                  <p className="text-sm text-surface-700">{q.explanation}</p>
+                  <p className="text-sm text-surface-300">{q.explanation}</p>
                 </div>
               )}
             </Card>
@@ -214,7 +214,7 @@ export default function QuizPage() {
             </div>
 
             {/* Question navigator */}
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-surface-100">
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-surface-700">
               {quiz.questions.map((_, i) => {
                 const isAnswered = selected[i] !== undefined;
                 const isReviewedQ = revealed[i];
@@ -226,10 +226,10 @@ export default function QuizPage() {
                     className={clsx(
                       "w-8 h-8 rounded-lg text-xs font-bold transition-colors",
                       i === currentQ ? "ring-2 ring-primary-500 ring-offset-1" : "",
-                      isReviewedQ && isCorrectQ ? "bg-emerald-100 text-emerald-700" :
-                      isReviewedQ && !isCorrectQ ? "bg-red-100 text-red-700" :
-                      isAnswered ? "bg-primary-100 text-primary-700" :
-                      "bg-surface-100 text-surface-500"
+                      isReviewedQ && isCorrectQ ? "bg-emerald-900/30 text-emerald-400" :
+                      isReviewedQ && !isCorrectQ ? "bg-red-900/30 text-red-400" :
+                      isAnswered ? "bg-primary-100 text-primary-400" :
+                      "bg-surface-700 text-surface-500"
                     )}
                   >
                     {i + 1}
@@ -245,8 +245,8 @@ export default function QuizPage() {
           <div className="space-y-6 animate-slide-up">
             <Card padding="lg">
               <div className="text-center py-4">
-                <Trophy size={48} className={clsx("mx-auto mb-4", score >= 80 ? "text-amber-400" : score >= 60 ? "text-surface-400" : "text-surface-300")} />
-                <h2 className="text-2xl font-bold text-surface-900 mb-1">Quiz Complete!</h2>
+                <Trophy size={48} className={clsx("mx-auto mb-4", score >= 80 ? "text-amber-400" : score >= 60 ? "text-surface-500" : "text-surface-300")} />
+                <h2 className="text-2xl font-bold text-surface-100 mb-1">Quiz Complete!</h2>
                 <p className="text-surface-500 text-sm mb-6">{quiz.title}</p>
                 <div className={clsx("inline-flex flex-col items-center px-8 py-5 rounded-2xl border-2 mb-6", SCORE_BG)}>
                   <span className={clsx("text-5xl font-extrabold", SCORE_COLOR)}>{score}%</span>
@@ -258,16 +258,16 @@ export default function QuizPage() {
                     { label: "Incorrect", value: totalQ - correct, color: "text-red-600" },
                     { label: "Score", value: `${score}%`, color: SCORE_COLOR },
                   ].map((s) => (
-                    <div key={s.label} className="bg-surface-50 rounded-xl p-3">
+                    <div key={s.label} className="bg-surface-700 rounded-xl p-3">
                       <p className={clsx("text-xl font-bold", s.color)}>{s.value}</p>
-                      <p className="text-xs text-surface-400">{s.label}</p>
+                      <p className="text-xs text-surface-500">{s.label}</p>
                     </div>
                   ))}
                 </div>
 
                 {weakTopics.length > 0 && (
-                  <div className="mb-6 text-left p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                  <div className="mb-6 text-left p-4 bg-amber-50 border border-amber-700/50 rounded-xl">
+                    <p className="text-sm font-semibold text-amber-300 mb-2 flex items-center gap-2">
                       <Lightbulb size={15} />
                       Weak topics to review:
                     </p>
@@ -290,29 +290,29 @@ export default function QuizPage() {
 
             {/* Answer review */}
             <div className="space-y-3">
-              <h3 className="font-bold text-surface-900">Answer Review</h3>
+              <h3 className="font-bold text-surface-100">Answer Review</h3>
               {quiz.questions.map((question, i) => {
                 const userAnswer = selected[i];
                 const isCorrectAnswer = userAnswer === question.answerIndex;
                 return (
                   <Card key={i} padding="md">
                     <div className="flex gap-3">
-                      <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5", isCorrectAnswer ? "bg-emerald-100" : "bg-red-100")}>
+                      <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5", isCorrectAnswer ? "bg-emerald-900/30" : "bg-red-900/30")}>
                         {isCorrectAnswer
                           ? <CheckCircle2 size={14} className="text-emerald-600" />
                           : <XCircle size={14} className="text-red-600" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-surface-900 mb-2">{question.prompt}</p>
+                        <p className="text-sm font-medium text-surface-100 mb-2">{question.prompt}</p>
                         <p className="text-xs text-surface-500">
-                          Your answer: <span className={isCorrectAnswer ? "text-emerald-700 font-medium" : "text-red-700 font-medium"}>{userAnswer !== undefined ? question.choices[userAnswer] : "Not answered"}</span>
+                          Your answer: <span className={isCorrectAnswer ? "text-emerald-400 font-medium" : "text-red-400 font-medium"}>{userAnswer !== undefined ? question.choices[userAnswer] : "Not answered"}</span>
                         </p>
                         {!isCorrectAnswer && (
                           <p className="text-xs text-surface-500 mt-0.5">
-                            Correct: <span className="text-emerald-700 font-medium">{question.choices[question.answerIndex]}</span>
+                            Correct: <span className="text-emerald-400 font-medium">{question.choices[question.answerIndex]}</span>
                           </p>
                         )}
-                        <p className="text-xs text-surface-400 mt-2 italic">{question.explanation}</p>
+                        <p className="text-xs text-surface-500 mt-2 italic">{question.explanation}</p>
                       </div>
                     </div>
                   </Card>
